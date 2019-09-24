@@ -6,7 +6,7 @@ const free_at_least = 3;
 // Checking table defined by x and y slope pairs
 const check_table = [[1, 0], [0, 1], [1, 1], [1, -1]]
 // Should the board be expanding or not
-const expanding = true;
+const expanding = false;
 // How much there is time per player
 const time_limit = 10;
 
