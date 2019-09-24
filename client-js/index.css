@@ -1,0 +1,45 @@
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+  
+th, td {
+    min-height: 60px;
+    min-width: 60px;
+    height: 60px;
+    width: 60px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 30px;
+    /* Align text horizontally and vertically */
+    text-align: center;
+    vertical-align: middle;
+}
+
+td.x {
+    background-color: rgb(124, 252, 0)
+}
+
+td.o {
+    background-color: rgb(250, 128, 114)
+}
+
+.timer-base {
+    background-color: lightgray;
+    width: 320px;
+    height: 35px;
+    position: relative;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 30px;
+    /* Align text horizontally and vertically */
+    text-align: center;
+    vertical-align: middle;
+}
+
+.timer-bar {
+    position: absolute;
+    height:35px;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
