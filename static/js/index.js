@@ -177,8 +177,6 @@ function click_event() {
   if (expanding === true) {
     update_table(tics_and_toes, x, y);
   }
-  // Send new status to the server
-  send_status();
   // Render new table
   render_table(tics_and_toes);
   // Check wether either player won the game
@@ -312,6 +310,7 @@ function restart() {
   // Reset the game and server status
   turn = "x";
   tics_and_toes = [];
+  time = time_limit;
   clearInterval(timer_handle);
   empty_init();
   send_status();

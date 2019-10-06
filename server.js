@@ -9,7 +9,8 @@ let express = require('express'),
   path = require('path'),
   cookieParser = require('cookie-parser'),
   game_controller = require('./controllers/game_controller'),
-  port = 8080;
+  port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
+  ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0';
 
 // Initialize database if required
 game_controller.initialize();
@@ -64,4 +65,4 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-app.listen(port, () => console.log(`Tic Tac Toe app listening on port ${port}!`))
+app.listen(port, ip, () => console.log(`Tic Tac Toe app listening on port ${port}!`))
