@@ -66,3 +66,4 @@ app.use(function (err, req, res, next) {
 });
 
 app.listen(port, ip, () => console.log(`Tic Tac Toe app listening on port ${port}!`))
+module.exports = app;
