@@ -10,7 +10,10 @@ exports.initialize = function (req, next) {
     // Try to connecto to the database and create database and collection if needed
     // https://www.w3schools.com/nodejs/nodejs_mongodb_create_db.asp
     Okd.initDb(function (err, db) {
-        if (err) throw err;
+        if (err) {
+            console.log("Database connection failed. This is okay in testing. Otherwice not.")
+            return;
+        }
         // https://stackoverflow.com/questions/21023982/how-to-check-if-a-collection-exists-in-mongodb-native-nodejs-driver
         db.listCollections({ name: collection_name })
             .next(function (err, collinfo) {
