@@ -9,5 +9,6 @@ block content
 			div(id="timer_text" class="timer-bar")
 		H4(id="player_turn") X turn
 		H4(id="error")
-		button(onClick="restart();") Restart!
+		form(action="#" onsubmit="restart();")
+			input(type="submit" value="Restart!")
 	script(src="/js/index.js")
