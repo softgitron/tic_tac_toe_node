@@ -1,3 +1,4 @@
+// Source: https://github.com/sclorg/nodejs-ex/blob/master/server.js
 var mongodb = require('mongodb');
 
 var mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || process.env.MONGO_URL,
