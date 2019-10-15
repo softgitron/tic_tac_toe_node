@@ -15,7 +15,8 @@ router.post("/save_status", [
     // Sanitize input JSON
     // sanitizeBody('*').trim().escape(),
     body("table").isArray({ min: 5, max: 5, number: 5 }),
-    body("turn").custom(value => typeof value === "string" && value === "x" || value === "o")
+    body("turn").custom(value => typeof value === "string" && value === "x" || value === "o"),
+    body("ended").isBoolean()
 ], (req, res) => {
 
     // Finds the validation errors in this request and wraps them in an object with handy functions
