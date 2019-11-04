@@ -7,8 +7,6 @@ const free_at_least = 3;
 const check_table = [[1, 0], [0, 1], [1, 1], [1, -1]]
 // Should the board be expanding or not
 const expanding = false;
-// How much there is time per player
-const time_limit = 10;
 
 // Global variables
 // Is game ended?
@@ -22,10 +20,10 @@ let player_1_mark = "x";
 let player_2_mark = "o";
 // Keep count whos turn it is
 let turn = player_1_mark;
-// How much time is left per turn
-let time = time_limit;
-// Timer object for stop handle
-let timer_handle;
+// Inform witch player you are
+let you = "x";
+// Keeps interval object
+let mainloop
 
 function get_state() {
   let server_request = new XMLHttpRequest();
@@ -37,53 +35,39 @@ function get_state() {
     if (server_request.status === 200) {
       console.log("Data laod succesfully!");
       let data = JSON.parse(server_request.response);
-      tics_and_toes = data.table;
       turn = data.turn;
       ended = data.ended;
-      // For old version compability
-      if (ended === undefined) {
-        ended = false;
+      you = data.you;
+      if (data.ended === true) {
+        let board = document.getElementById("board");
+        board.innerHTML = "Waiting for a oponent.";
+        if (turn != "n") {
+          player_turn.innerHTML = "Game has ended, player " + turn + " won!";
+        }
       }
-      common_init();
-    }
-    else {
-      empty_init();
+      else {
+        if (tics_and_toes != data.table) {
+          tics_and_toes = data.table;
+          render_table(tics_and_toes);
+          check_winner();
+          player_turn = document.getElementById("player_turn");
+          player_turn.innerHTML = turn + " turn";
+          you_are = document.getElementById("you_are");
+          you_are.innerHTML = "You are " + you;
+        }
+      }
+    } else if (server_request.status === 401 && JSON.parse(server_request.response).error === "Game is allready runnign try again later.") {
+      let board = document.getElementById("board");
+      board.innerHTML = "Game is allready runnign wait for another game to finnish.";
     }
   });
   server_request.addEventListener('error', function (results) {
     error.innerHTML("Welcome new commer!");
-    empty_init();
   });
 
   // Do GET request
   server_request.open("GET", "/api/get_status");
   server_request.send();
-}
-
-function empty_init() {
-  // Generate two dimensional array by putting lists inside lists
-  for (let x = 0; x < initial_size; x++) {
-    tics_and_toes[x] = new Array(initial_size);
-    initialize_array(tics_and_toes[x], "");
-  }
-  common_init();
-}
-
-function common_init() {
-  // Render initial table
-  render_table(tics_and_toes);
-  // Set initial visual timer value
-  update_bar();
-  // Update player text
-  let player_turn = document.getElementById("player_turn");
-  player_turn.innerHTML = turn + " turn";
-  // Start timer
-  if (ended === false) {
-    timer_handle = setInterval(update_timer, 1000);
-  }
-  else {
-    end_game();
-  }
 }
 
 function update_table(tics_and_toes, x_start, y_start) {
@@ -166,8 +150,15 @@ function render_table(tics_and_toes) {
 }
 
 function click_event() {
+  clearInterval(mainloop);
   // Check has the game ended allready
   if (ended === true) {
+    mainloop = setInterval(get_state, 1000);
+    return;
+  }
+  // Check that it's your turn
+  if (you != turn) {
+    mainloop = setInterval(get_state, 1000);
     return;
   }
   // Get cell coordinates from the object
@@ -190,7 +181,13 @@ function click_event() {
   // Render new table
   render_table(tics_and_toes);
   // Check wether either player won the game
-  check_winner(is_winner, mark)
+  check_winner(is_winner, mark);
+  // Don't do double update
+  if (ended === false) {
+    // Update server status
+    send_status();
+  }
+  mainloop = setInterval(get_state, 1000);
 }
 
 function change_player_turn() {
@@ -204,13 +201,6 @@ function change_player_turn() {
     turn = player_1_mark;
     player_turn.innerHTML = player_1_mark + " turn";
   }
-  // Reset turn time
-  time = time_limit;
-  // Update time visuals
-  update_bar();
-  reset_timer();
-  // Update server status
-  send_status();
 }
 
 function check_status(tics_and_toes, x, y) {
@@ -293,49 +283,32 @@ function send_status() {
   server_request.send(request);
 }
 
-function update_timer() {
-  // Update time bar and change turns if necessary
-  time -= 1;
-  if (time === 0) {
-    change_player_turn();
-  }
-  update_bar();
-}
-
-function reset_timer() {
-  // Reset timer for accurate time measurement
-  clearInterval(timer_handle);
-  timer_handle = setInterval(update_timer, 1000);
-}
-
-function update_bar() {
-  let timer = document.getElementById("timer");
-  let timer_text = document.getElementById("timer_text");
-  let percent = time / time_limit;
-  timer.style.width = (1 - percent) * 100 + "%";
-  // Make bar from green to red
-  timer.style.backgroundColor = "rgba(" + String(255 - percent * 255) + "," + String(percent * 255) + ",0,0.6)";
-  timer_text.innerHTML = String(time);
-}
-
 function end_game() {
   ended = true;
-  clearInterval(timer_handle);
   send_status();
   // Update player text
   let player_turn = document.getElementById("player_turn");
   player_turn.innerHTML = "Game has ended, player " + turn + " won!";
 }
 
+function empty_init() {
+  // Generate two dimensional array by putting lists inside lists
+  for (let x = 0; x < initial_size; x++) {
+    tics_and_toes[x] = new Array(initial_size);
+    initialize_array(tics_and_toes[x], "");
+  }
+}
+
+
 function restart() {
   // Reset the game and server status
   ended = false;
   turn = "x";
   tics_and_toes = [];
-  time = time_limit;
-  clearInterval(timer_handle);
   empty_init();
-  send_status();
+  let server_request = new XMLHttpRequest();
+  server_request.open("POST", "/api/restart");
+  server_request.send();
 }
 
-get_state();
+mainloop = setInterval(get_state, 1000);

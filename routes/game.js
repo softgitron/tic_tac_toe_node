@@ -28,4 +28,6 @@ router.post("/save_status", [
         game_controller.save(req, res)
     }
 });
+
+router.post("/restart", game_controller.restart);
 module.exports = router;

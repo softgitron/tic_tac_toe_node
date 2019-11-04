@@ -65,5 +65,8 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
+// Autoclean old entries every 10 seconds
+setInterval(game_controller.auto_clean, 10*1000);
+
 app.listen(port, ip, () => console.log(`Tic Tac Toe app listening on port ${port}!`))
 module.exports = app;

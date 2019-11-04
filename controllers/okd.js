@@ -52,7 +52,7 @@ exports.initDb = function(callback) {
 
   if (mongodb == null) return;
 
-  console.log("Mongodb URI: " + mongoURL);
+  // console.log("Mongodb URI: " + mongoURL);
   mongodb.connect(mongoURL, function(err, conn) {
     if (err) {
       callback(err);
